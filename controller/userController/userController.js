@@ -6,7 +6,7 @@ const signup = async (req, res) => {
   try {
     console.log(req.body);
     const { email, password, mobile, name } = req.body;
-    if (!email || !password || mobile || name) {
+    if (!email || !password || !mobile || !name) {
       return res
         .status(400)
         .json({ msg: "Please provide both email and password" });
@@ -18,7 +18,7 @@ const signup = async (req, res) => {
       mobile: mobile,
       user_name: name,
     });
-    return res.status(200).json({ msg: "Registered successfully" });
+    return res.status(200).json({ message: "Registered successfully" });
   } catch (error) {
     console.error("Error:", error.message);
     if (error.name === "ValidationError") {
@@ -51,23 +51,24 @@ const login = async (req, res) => {
         const response = {
           user_id: null,
           token: null,
-          name: null,
+          user_name: null,
           email: null,
+          is_purchased : userDetails.is_purchased
         };
         response.token = generateAuthToken(userDetails);
         response.user_id = userDetails._id;
-        response.name = userDetails.name;
+        response.user_name = userDetails.user_name;
         response.email = userDetails.email;
-        return res.status(200).json({ response });
+        return res.status(200).json({ result : response,message:"Success"});
       } else {
-        return res.status(400).json({ msg: "Password incurrect!!" });
+        return res.status(400).json({ message:"Password incurrect!!"});
       }
     } else {
-      return res.status(400).json({ msg: "User notfound!!" });
+      return res.status(400).json({ message:"User not found!!"});
     }
   } catch (error) {
     console.error("Error:", error.message);
-    return res.status(500).json({ msg: "Server error!!" });
+    return res.status(500).json({ message:"Server error!!"});
   }
 };
 
