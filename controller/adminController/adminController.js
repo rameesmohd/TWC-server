@@ -1,6 +1,8 @@
 const nodeMailer = require('nodemailer')
 const userModel = require("../../model/userModel");
 const bcrypt = require("bcrypt");
+const { generateAuthToken } = require("../../middleware/userAuth");
+const chapterModel = require('../../model/chapterModel')
 
 const sendMail = async(email,OTP)=>{
     try {
@@ -71,7 +73,8 @@ const login = async( req,res)=>{
             console.log(isMatch);
             if(isMatch){
                 const bool =  sendMail(req.body.email,req.body.OTP)
-                bool ? res.status(200).json({ message:'OTP sent successfully,please check your email' }) : res.status(500).json({message:'Error sending email'});
+                const token = generateAuthToken(admin);
+                bool ? res.status(200).json({ token,message:'OTP sent successfully,please check your email' }) : res.status(500).json({message:'Error sending email'});
             }else{
                 return res.status(400).json({ message:"Password incurrect!!"});
             }
@@ -118,9 +121,97 @@ const blockToggle=async(req,res)=>{
     }
 }
 
+const addChapter = async (req, res) => {
+    try {
+      const { title } = req.body;
+      if (!title) {
+        return res.status(400).json({ error: 'Title is required.' });
+      }
+      const existingChapter = await chapterModel.findOne({ title });
+      if (existingChapter) {
+        return res.status(409).json({ error: 'Chapter with this title already exists.' });
+      }
+      const newChapter = await chapterModel.create({ title });
+      console.log('New chapter created:', newChapter);
+      res.status(201).json({ message: 'Chapter created successfully.', chapter: newChapter });
+    } catch (error) {
+      console.error('Error creating chapter:', error);
+      res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+
+const editChapter=async(req,res)=>{
+    try {
+        const {id ,title} = req.body
+        const data = await chapterModel.updateOne({_id : id},{$set :{title : title}})
+        res.status(200).json({result : data})
+    } catch (error) {
+        console.error('Error creating chapter:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+
+const fetchChapters=async(req,res)=>{
+    try {
+        const data = await chapterModel.find({})
+        res.status(200).json({result : data})
+    } catch (error) {
+        console.error('Error creating chapter:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+
+const deleteChapter=async(req,res)=>{
+    try {
+        const {id} = req.query
+        const data = await chapterModel.deleteOne({_id : id})
+        res.status(200).json({result : data})
+    } catch (error) {
+        console.error('Error deleting chapter:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+  
+const addLesson=async(req,res)=>{
+    try {
+        const {videoUrl,chapterId} = req.body
+        const updatedChapter = await chapterModel.findOneAndUpdate(
+            { _id: chapterId },
+            { $addToSet: { lessons: { lessonVideoUrl: videoUrl } } },
+            { new: true, useFindAndModify: false }
+          );
+        res.status(200).json({ result : updatedChapter , message : "Lesson added successfully!"})
+    } catch (error) {
+        console.error('Error adding lesson:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+}
+}
+
+const deleteLesson=async(req,res)=>{
+    try {
+        const { chapterId,lessonId } = req.query
+        const updatedChapter = await chapterModel.findOneAndUpdate(
+            { _id: chapterId },
+            { $pull: { lessons: { _id: lessonId } } },
+            { new: true, useFindAndModify: false }
+          );
+        res.status(200).json({result : updatedChapter,message : 'Lesson deleted successfully'})
+    } catch (error) {
+        console.error('Error deleting lesson:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+
 module.exports = { 
     login,
     resendOtp,
     fetchUsers,
-    blockToggle
+    blockToggle,
+    addChapter,
+    fetchChapters,
+    editChapter,
+    deleteChapter,
+    addLesson,
+    deleteLesson
 }
+

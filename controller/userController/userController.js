@@ -1,5 +1,6 @@
 const { generateAuthToken } = require("../../middleware/userAuth");
 const usermodel = require("../../model/userModel");
+const chapterModel = require("../../model/chapterModel")
 const bcrypt = require("bcrypt");
 
 const signup = async (req, res) => {
@@ -72,7 +73,19 @@ const login = async (req, res) => {
   }
 };
 
+const fetchChapters=async(req,res)=>{
+  try {
+      const data = await chapterModel.find({})
+      console.log(data);
+      res.status(200).json({result : data})
+  } catch (error) {
+      console.error('Error creating chapter:', error);
+      res.status(500).json({ error: 'Internal server error.' });
+  }
+}
+
 module.exports = {
   signup,
   login,
+  fetchChapters
 };
