@@ -15,6 +15,5 @@ const chapterSchema = new mongoose.Schema({
     lessons: [lessonSchema]
   });
   
-
 const chapterModel = new mongoose.model("chapter", chapterSchema);
 module.exports = chapterModel;

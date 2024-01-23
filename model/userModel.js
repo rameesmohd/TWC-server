@@ -24,7 +24,13 @@ const userSchema = new mongoose.Schema({
   is_purchased : {
     type : Boolean,
     default : false
-  }
+  },
+  completedChapters: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "chapter",
+    },
+  ],
 });
 
 const userModel = new mongoose.model("user", userSchema);

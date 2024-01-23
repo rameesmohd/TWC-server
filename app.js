@@ -3,7 +3,8 @@ const app = express();
 const connectdb = require("./config/db");
 const cors = require("cors");
 const userRoute = require("./routes/userRoute");
-const adminRoute = require('./routes/adminRoute')
+const adminRoute = require('./routes/adminRoute');
+const multer = require("multer");
 
 connectdb();
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));

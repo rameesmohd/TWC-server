@@ -33,7 +33,6 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    console.log(req.body);
     const { email, password } = req.body;
     if (!email || !password) {
       return res
@@ -44,11 +43,11 @@ const login = async (req, res) => {
       email: email,
       is_blocked: false,
     });
-    console.log(userDetails);
 
     if (userDetails) {
       const isMatch = await bcrypt.compare(password, userDetails.password);
       if (isMatch) {
+        console.log('matched');
         const response = {
           user_id: null,
           token: null,
