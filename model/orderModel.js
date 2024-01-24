@@ -7,16 +7,10 @@ const orderSchema = new mongoose.Schema({
     required : true
   },
   payment_method: {
-    //0-usdt
-    //1-local_bank
-    //2-phone_pay
     type: String,
     required: true,
   },
   payment_status: {
-    //0 - pending
-    //1 - success
-    //2 - rejected
     type: String,
     required : true,
   },
@@ -26,11 +20,12 @@ const orderSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: false,
+    required : true,
   },
   user_id: {
     type:  mongoose.Schema.Types.ObjectId,
     ref: "user",
+    required : true
   },
   user_email : {
     type : String,

@@ -1,7 +1,6 @@
 const { generateAuthToken } = require("../../middleware/userAuth");
-const usermodel = require("../../model/userModel");
-const chapterModel = require("../../model/chapterModel")
 const bcrypt = require("bcrypt");
+const userModel = require("../../model/userModel");
 
 const signup = async (req, res) => {
   try {
@@ -13,7 +12,7 @@ const signup = async (req, res) => {
         .json({ msg: "Please provide both email and password" });
     }
     const hashpassword = await bcrypt.hash(password, 10);
-    await usermodel.create({
+    await userModel.create({
       email: email,
       password: hashpassword,
       mobile: mobile,
@@ -39,7 +38,7 @@ const login = async (req, res) => {
         .status(400)
         .json({ msg: "Please provide both email and password" });
     }
-    const userDetails = await usermodel.findOne({
+    const userDetails = await userModel.findOne({
       email: email,
       is_blocked: false,
     });
@@ -53,12 +52,14 @@ const login = async (req, res) => {
           token: null,
           user_name: null,
           email: null,
+          mobile : null,
           is_purchased : userDetails.is_purchased
         };
         response.token = generateAuthToken(userDetails);
         response.user_id = userDetails._id;
         response.user_name = userDetails.user_name;
         response.email = userDetails.email;
+        response.mobile = userDetails.mobile;
         return res.status(200).json({ result : response,message:"Success"});
       } else {
         return res.status(400).json({ message:"Password incurrect!!"});
@@ -72,19 +73,7 @@ const login = async (req, res) => {
   }
 };
 
-const fetchChapters=async(req,res)=>{
-  try {
-      const data = await chapterModel.find({})
-      console.log(data);
-      res.status(200).json({result : data})
-  } catch (error) {
-      console.error('Error creating chapter:', error);
-      res.status(500).json({ error: 'Internal server error.' });
-  }
-}
-
 module.exports = {
   signup,
   login,
-  fetchChapters
 };

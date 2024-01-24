@@ -15,8 +15,8 @@ router.route('/chapter')
 router.route('/lesson')
     .post(adminController.addLesson)
     .delete(adminController.deleteLesson)
-    
 router.route('/order')
     .get(orderController.fetchOrder)
-    
+    .patch(orderController.handleOrder)
+
 module.exports = router
