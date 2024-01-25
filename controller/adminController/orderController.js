@@ -1,4 +1,5 @@
-const orderModel = require('../../model/orderModel')
+const orderModel = require('../../model/orderModel');
+const userModel = require('../../model/userModel');
 
 const fetchOrder =async(req,res)=>{
     try {
@@ -49,12 +50,15 @@ const handleOrder=async(req,res)=>{
     try {
         const {orderId,action}=req.body
         const status = action===1 ? 'success' : action===2 ? 'rejected' : ''
-        const updatedData = await orderModel.findOneAndUpdate(
+        const updatedOrder = await orderModel.findOneAndUpdate(
             {_id : orderId},
             {$set : {payment_status : status}},
             {new : true}
         )
-        res.status(200).json({result : updatedData})
+        if(status=='success'){
+            await userModel.updateOne({_id : updatedOrder.user_id},{$set : {is_purchased : true}})
+        }
+        res.status(200).json({result : updatedOrder})
     } catch (error) {
         console.log(error);
         res.status(500).json({message : "Server side error!"})

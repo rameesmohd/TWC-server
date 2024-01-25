@@ -17,6 +17,7 @@ const signup = async (req, res) => {
       password: hashpassword,
       mobile: mobile,
       user_name: name,
+      join_date: Date.now()
     });
     return res.status(200).json({ message: "Registered successfully" });
   } catch (error) {

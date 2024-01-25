@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+  user_name :{
+    type : String,
+    required : true
+  },
   email: {
     type: String,
     required: true,
@@ -12,6 +16,10 @@ const userSchema = new mongoose.Schema({
   mobile: {
     type: Number,
     required: true,
+  },
+  join_date : {
+    type: Date,
+    required : true
   },
   is_blocked: {
     type: Boolean,
@@ -25,7 +33,11 @@ const userSchema = new mongoose.Schema({
     type : Boolean,
     default : false
   },
-  completedChapters: [
+  is_completed : {
+    type:Boolean,
+    default : false
+  },
+  completed_chapters: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "chapter",
