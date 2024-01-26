@@ -173,8 +173,70 @@ const phonePayStatus=async(req,res)=>{
     }
 }
 
+const fetchTrasactionData=async(req,res)=>{
+    try {
+        const user = req.user
+        const userId = new mongoose.Types.ObjectId(user._id);
+        const data= await orderModel.find({user_id : userId})
+        res.status(200).json({result : data})
+    } catch (error) {
+        console.error('Error creating chapter:', error);
+        return res.status(500).json({ message: 'Internal server error.', status: 'failed' });
+    }
+}
+
+const usdtOrder=async(req,res)=>{
+    try {
+        const localBankOrderValidation = [
+            body('amount').isNumeric().withMessage('Amount must be a number'),
+        ];
+        await Promise.all(localBankOrderValidation.map(validation => validation.run(req)));
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        const user = req.user
+        const userId = new mongoose.Types.ObjectId(user._id);
+        const image = req.files.screenshot[0]
+        let imageUrl = null;
+        await cloudinary.uploader.upload(image.path)
+            .then((data) => {
+                imageUrl = data.secure_url;
+            }).catch((err) => {
+                res.status(500).json({ error: 'Error uploading image to Cloudinary.' });
+            }).finally(()=>{
+                fs.unlinkSync(image.path)
+            })
+        
+        if(imageUrl){
+            const transId = generateTransactionID();
+            const newOrder = new orderModel({
+            transaction_id : transId,
+            payment_method: 'usdt',
+            payment_status: 'pending',
+            amount: req.body.amount,
+            date: new Date(),
+            user_id: userId,
+            user_email : user.email,
+            screenshot: imageUrl,
+        });
+        
+        await newOrder.save();
+        
+        res.status(200).json({message : "order placed successfully",status : 'pending'})
+        }else{
+        res.status(500).json({ error: 'Internal server error.' });
+        }
+    } catch (error) {
+        console.error('Error creating chapter:', error);
+        res.status(500).json({ error: 'Internal server error.' })
+    }
+} 
+
 module.exports = {
     localBankOrder,
     phonePayPayment,
-    phonePayStatus
+    phonePayStatus,
+    fetchTrasactionData,
+    usdtOrder
 }

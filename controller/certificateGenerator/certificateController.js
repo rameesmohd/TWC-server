@@ -1,12 +1,13 @@
 const PDFDocument = require('pdfkit');
+// const winnerIng = require('./assets/winners.png')
 
 const generateCertificate=async(req, res) => {
     try {
-    const doc = new PDFDocument({
-      layout: 'landscape',
-      size: 'A4',
-    });
-  
+   const doc = new PDFDocument({
+            layout: 'landscape',
+            size: 'A4',
+        });
+    
   // Helper to move to next line
   function jumpLine(doc, lines) {
     for (let index = 0; index < lines; index++) {
@@ -14,14 +15,14 @@ const generateCertificate=async(req, res) => {
     }
   }
   
-  doc.pipe(res);
+  // doc.pipe(res);
   
   doc.rect(0, 0, doc.page.width, doc.page.height).fill('#fff');
   
   doc.fontSize(10);
   
   // Margin
-  const distanceMargin = 18;
+  const distanceMargin = 18
   
   doc
     .fillAndStroke('#0e8cc3')
@@ -242,7 +243,22 @@ const generateCertificate=async(req, res) => {
       fit: [60, 60],
     });
   
-    doc.end();
+    // doc.end();
+
+     // Collect PDF data in a buffer before sending headers
+     const pdfBuffer = await new Promise((resolve, reject) => {
+      const buffers = [];
+      doc.on('data', (chunk) => buffers.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+      doc.end(); // End the PDF generation before sending headers
+    });
+
+    // Send the PDF data and headers in a single response
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'inline; filename="certificate.pdf"',
+    });
+    res.send(pdfBuffer);
     } catch (error) {
         console.error('Error generating certificate:', error);
         res.status(500).send('Error generating certificate');

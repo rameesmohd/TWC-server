@@ -21,7 +21,9 @@ router.route('/course')
       
 router.route('/order')
       .post(upload.fields([{ name: 'screenshot' }]),orderController.localBankOrder)
+      .put(upload.fields([{ name: 'screenshot' }]),orderController.usdtOrder)
 
-router.get('/generateCertificate',generateCertificater.generateCertificate)
+router.get('/generatecertificate',generateCertificater.generateCertificate)
+router.get('/transaction',orderController.fetchTrasactionData)
 
 module.exports = router;
