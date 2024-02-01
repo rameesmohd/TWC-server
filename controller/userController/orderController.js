@@ -20,6 +20,7 @@ const generateTransactionID=()=>{
 
 const localBankOrder=async(req,res)=>{
     try {
+        console.log('in controller');
         const localBankOrderValidation = [
             body('amount').isNumeric().withMessage('Amount must be a number'),
         ];
@@ -28,10 +29,13 @@ const localBankOrder=async(req,res)=>{
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
+
+        console.log('sdfasdfbasdkf');
         const user = req.user
         const userId = new mongoose.Types.ObjectId(user._id);
         const image = req.files.screenshot[0]
         let imageUrl = null;
+        console.log(image);
         await cloudinary.uploader.upload(image.path)
             .then((data) => {
                 imageUrl = data.secure_url;
@@ -75,7 +79,7 @@ const phonePayPayment=async(req,res)=>{
             merchantUserId: "MUID123",
             name : email,
             amount: amount * 100,
-            redirectUrl: `http://localhost:3000/api/phonepay/status?userid=${user_id}&email=${email}`,
+            redirectUrl: `${process.env.SERVER_BASE_URL}/api/phonepay/status?userid=${user_id}&email=${email}`,
             redirectMode: "POST",
             mobileNumber: number,
             paymentInstrument: {
@@ -222,7 +226,7 @@ const usdtOrder=async(req,res)=>{
         });
         
         await newOrder.save();
-        
+
         res.status(200).json({message : "order placed successfully",status : 'pending'})
         }else{
         res.status(500).json({ error: 'Internal server error.' });

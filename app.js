@@ -8,13 +8,12 @@ const multer = require("multer");
 const createError = require('http-errors');
 
 connectdb();
-app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
-app.use(express.json({ limit: "3mb" }));
+app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/admin",adminRoute)
 app.use("/api",userRoute);
-
 
 //-------------HTTP Error Handling -------//
 app.use(async (req, res, next) => {
@@ -31,7 +30,6 @@ app.use((err, req, res, next) => {
   })
 })
 
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Example app listening on port ${process.env.PORT}`);
 });

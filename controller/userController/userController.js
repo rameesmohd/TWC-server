@@ -4,13 +4,14 @@ const userModel = require("../../model/userModel");
 
 const signup = async (req, res) => {
   try {
-    console.log(req.body);
     const { email, password, mobile, name } = req.body;
     if (!email || !password || !mobile || !name) {
       return res
         .status(400)
         .json({ msg: "Please provide both email and password" });
     }
+    const alreadyuser =  await userModel.findOne({email : email})
+  if(!alreadyuser){
     const hashpassword = await bcrypt.hash(password, 10);
     await userModel.create({
       email: email,
@@ -20,6 +21,9 @@ const signup = async (req, res) => {
       join_date: Date.now()
     });
     return res.status(200).json({ message: "Registered successfully" });
+  }else{
+    return res.status(400).json({ message: "User already exists!" });
+  }
   } catch (error) {
     console.error("Error:", error.message);
     if (error.name === "ValidationError") {

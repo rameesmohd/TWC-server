@@ -14,6 +14,9 @@ router.post("/signup", userController.signup);
 router.post('/phonepay/payment',orderController.phonePayPayment)
 router.post('/phonepay/status',orderController.phonePayStatus)
 
+router.get('/generatecertificate',generateCertificater.generateCertificate)
+router.get('/transaction',orderController.fetchTrasactionData)
+
 router.use(verifyToken)
 router.route('/course')
       .get(chapterController.fetchChapters)
@@ -23,7 +26,5 @@ router.route('/order')
       .post(upload.fields([{ name: 'screenshot' }]),orderController.localBankOrder)
       .put(upload.fields([{ name: 'screenshot' }]),orderController.usdtOrder)
 
-router.get('/generatecertificate',generateCertificater.generateCertificate)
-router.get('/transaction',orderController.fetchTrasactionData)
 
 module.exports = router;
