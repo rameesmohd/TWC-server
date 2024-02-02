@@ -8,13 +8,13 @@ const multer = require("multer");
 const createError = require('http-errors');
 
 connectdb();
-// app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
-app.use(cors({
-  origin: 'https://tradewalkeredu.com',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 204,
-}));
+app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
+// app.use(cors({
+//   origin: process.env.CLIENT_BASE_URL,
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true,
+//   optionsSuccessStatus: 204,
+// }));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
