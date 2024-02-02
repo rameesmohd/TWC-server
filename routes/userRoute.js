@@ -10,14 +10,18 @@ const {verifyToken } = require('../middleware/userAuth')
 
 router.post("/login", userController.login);
 router.post("/signup", userController.signup);
+router.route("/forget-password")
+      .post(userController.sendResetMail)
+      .patch(userController.resetNewPassword)
 
 router.post('/phonepay/payment',orderController.phonePayPayment)
 router.post('/phonepay/status',orderController.phonePayStatus)
 
+router.use(verifyToken)
+
 router.get('/generatecertificate',generateCertificater.generateCertificate)
 router.get('/transaction',orderController.fetchTrasactionData)
 
-router.use(verifyToken)
 router.route('/course')
       .get(chapterController.fetchChapters)
       .patch(chapterController.handleChapterCompletes)
@@ -25,6 +29,5 @@ router.route('/course')
 router.route('/order')
       .post(upload.fields([{ name: 'screenshot' }]),orderController.localBankOrder)
       .put(upload.fields([{ name: 'screenshot' }]),orderController.usdtOrder)
-
 
 module.exports = router;

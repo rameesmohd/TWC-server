@@ -79,7 +79,7 @@ const phonePayPayment=async(req,res)=>{
             merchantUserId: "MUID123",
             name : email,
             amount: amount * 100,
-            redirectUrl: `${process.env.SERVER_BASE_URL}/api/phonepay/status?userid=${user_id}&email=${email}`,
+            redirectUrl: `${process.env.SERVER_BASE_URL}/phonepay/status?userid=${user_id}&email=${email}`,
             redirectMode: "POST",
             mobileNumber: number,
             paymentInstrument: {
