@@ -1,7 +1,7 @@
 const usermodel = require("../../model/userModel");
 const chapterModel = require("../../model/chapterModel")
 const orderModel = require('../../model/orderModel');
-const { default: mongoose } = require("mongoose");
+const mongoose  = require("mongoose");
 const cloudinary = require('../../config/cloudinary')
 const fs = require('fs')
 const { body, validationResult } = require('express-validator');
@@ -33,7 +33,7 @@ const localBankOrder=async(req,res)=>{
         }
 
         const user = req.user
-        const userId = new mongoose.Types.ObjectId(user._id);
+        const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
         const image = req.files.screenshot[0]
         let imageUrl = null;
         console.log(image);
@@ -181,7 +181,7 @@ const phonePayStatus=async(req,res)=>{
 const fetchTrasactionData=async(req,res)=>{
     try {
         const user = req.user
-        const userId = new mongoose.Types.ObjectId(user._id);
+        const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
         const data= await orderModel.find({user_id : userId})
         res.status(200).json({result : data})
     } catch (error) {
@@ -201,7 +201,7 @@ const usdtOrder=async(req,res)=>{
             return res.status(400).json({ errors: errors.array() });
         }
         const user = req.user
-        const userId = new mongoose.Types.ObjectId(user._id);
+        const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
         const image = req.files.screenshot[0]
         let imageUrl = null;
         await cloudinary.uploader.upload(image.path)

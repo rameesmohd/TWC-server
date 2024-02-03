@@ -2,12 +2,12 @@ const chapterModel = require("../../model/chapterModel")
 const orderModel = require("../../model/orderModel");
 const userModel = require("../../model/userModel");
 const NodeCache = require('node-cache');
-const { default: mongoose } = require("mongoose");
+const mongoose  = require("mongoose");
 const cache = new NodeCache({ stdTTL: 21600 }); // Cache with a 6-hour TTL
 
 const fetchChapters = async (req, res) => {
     try {
-      const userId = new mongoose.Types.ObjectId(req.user._id);
+      const userId = mongoose.Types.ObjectId.createFromHexString(req.user._id);
       const user = await userModel.findOne({ _id: userId, is_blocked: false, is_purchased: true });
       console.log(user);
       if (user) {
@@ -31,8 +31,8 @@ const fetchChapters = async (req, res) => {
   
 const handleChapterCompletes = async (req, res) => {
   try {
-    const chapterId= new mongoose.Types.ObjectId(req.body.chapterId);
-    const userId = new mongoose.Types.ObjectId(req.user._id);
+    const chapterId= mongoose.Types.ObjectId.createFromHexString(req.body.chapterId);
+    const userId = mongoose.Types.ObjectId.createFromHexString(req.user._id);
     const updatedData = await userModel.findOneAndUpdate(
       { _id: userId, is_blocked: false },
       {
