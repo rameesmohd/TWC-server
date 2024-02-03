@@ -9,7 +9,12 @@ const upload = multer.createMulter()
 const {verifyToken } = require('../middleware/userAuth') 
 
 router.post("/login", userController.login);
-router.post("/signup", userController.signup);
+
+router.route("/signup")
+      .post(userController.signup)
+
+router.post("/send-otp",userController.sendOtp)
+
 router.route("/forget-password")
       .post(userController.sendResetMail)
       .patch(userController.resetNewPassword)
