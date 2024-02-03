@@ -9,6 +9,8 @@ const { v4: uuidv4 } = require('uuid');
 const axios = require('axios')
 const crypto = require('crypto');
 const userModel = require("../../model/userModel");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const generateTransactionID=()=>{
     const timstamp = Date.now()

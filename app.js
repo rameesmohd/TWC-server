@@ -6,6 +6,8 @@ const userRoute = require("./routes/userRoute");
 const adminRoute = require('./routes/adminRoute');
 const multer = require("multer");
 const createError = require('http-errors');
+const dotenv = require("dotenv");
+dotenv.config();
 
 connectdb();
 // app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
