@@ -8,13 +8,14 @@ const multer = require("multer");
 const createError = require('http-errors');
 
 connectdb();
-app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
-// app.use(cors({
-//   origin: process.env.CLIENT_BASE_URL,
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//   credentials: true,
-//   optionsSuccessStatus: 204,
-// }));
+// app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
+app.use(cors({
+  origin: [ "https://www.tradewalkeredu.com/","http://localhost:5173","https://twc-client.vercel.app"],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
+}));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
