@@ -32,7 +32,6 @@ const localBankOrder=async(req,res)=>{
             return res.status(400).json({ errors: errors.array() });
         }
 
-        console.log('sdfasdfbasdkf');
         const user = req.user
         const userId = new mongoose.Types.ObjectId(user._id);
         const image = req.files.screenshot[0]

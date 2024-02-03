@@ -3,13 +3,11 @@ const orderModel = require("../../model/orderModel");
 const userModel = require("../../model/userModel");
 const NodeCache = require('node-cache');
 const { default: mongoose } = require("mongoose");
-const { Types } = require('mongoose');
 const cache = new NodeCache({ stdTTL: 21600 }); // Cache with a 6-hour TTL
 
 const fetchChapters = async (req, res) => {
     try {
-      // const userId = new mongoose.Types.ObjectId(req.user._id);
-      const userId = Types.ObjectId.createFromHexString(req.user._id);
+      const userId = new mongoose.Types.ObjectId(req.user._id);
       const user = await userModel.findOne({ _id: userId, is_blocked: false, is_purchased: true });
       console.log(user);
       if (user) {
