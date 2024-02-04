@@ -1,13 +1,20 @@
 const PDFDocument = require('pdfkit');
 // const winnerIng = require('./assets/winners.png')
+const userModel = require("../../model/userModel");
+const { default: mongoose } = require('mongoose');
 
 const generateCertificate=async(req, res) => {
-    try {
-   const doc = new PDFDocument({
+  try {
+    const user = req.user
+    const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
+    const userData = await userModel.findOne({_id:userId},{user_name :1})
+    const userName = userData.user_name
+    console.log(userName);
+    const doc = new PDFDocument({
             layout: 'landscape',
             size: 'A4',
         });
-    
+  
   // Helper to move to next line
   function jumpLine(doc, lines) {
     for (let index = 0; index < lines; index++) {
@@ -16,9 +23,7 @@ const generateCertificate=async(req, res) => {
   }
   
   // doc.pipe(res);
-  
   doc.rect(0, 0, doc.page.width, doc.page.height).fill('#fff');
-  
   doc.fontSize(10);
   
   // Margin
@@ -37,10 +42,10 @@ const generateCertificate=async(req, res) => {
     .stroke();
   
   // Header
-  const maxWidth = 140;
-  const maxHeight = 70;
+  const maxWidth = 200;
+  const maxHeight = 90;
   
-  doc.image('assets/winners.png', doc.page.width / 2 - maxWidth / 2, 60, {
+  doc.image('assets/winners.png', doc.page.width / 2 - maxWidth / 2, 50, {
     fit: [maxWidth, maxHeight],
     align: 'center',
   });
@@ -82,7 +87,7 @@ const generateCertificate=async(req, res) => {
     .font('fonts/NotoSansJP-Bold.otf')
     .fontSize(24)
     .fill('#021c27')
-    .text('STUDENT NAME', {
+    .text(userName.toUpperCase(), {
       align: 'center',
     });
   
@@ -132,7 +137,7 @@ const generateCertificate=async(req, res) => {
     .font('fonts/NotoSansJP-Bold.otf')
     .fontSize(10)
     .fill('#021c27')
-    .text('John Doe', startLine1, signatureHeight + 10, {
+    .text('Ramees Mohd', startLine1, signatureHeight + 10, {
       columns: 1,
       columnGap: 0,
       height: 40,
@@ -156,7 +161,7 @@ const generateCertificate=async(req, res) => {
     .font('fonts/NotoSansJP-Bold.otf')
     .fontSize(10)
     .fill('#021c27')
-    .text('Student Name', startLine2, signatureHeight + 10, {
+    .text(userName.charAt(0).toUpperCase() + userName.slice(1), startLine2, signatureHeight + 10, {
       columns: 1,
       columnGap: 0,
       height: 40,
@@ -180,7 +185,7 @@ const generateCertificate=async(req, res) => {
     .font('fonts/NotoSansJP-Bold.otf')
     .fontSize(10)
     .fill('#021c27')
-    .text('Jane Doe', startLine3, signatureHeight + 10, {
+    .text('Sanoob Thadiyam', startLine3, signatureHeight + 10, {
       columns: 1,
       columnGap: 0,
       height: 40,
@@ -203,44 +208,44 @@ const generateCertificate=async(req, res) => {
   jumpLine(doc, 4);
   
   // Validation link
-  const link =
-    'https://validate-your-certificate.hello/validation-code-here';
+  // const link =
+  //   'https://validate-your-certificate.hello/validation-code-here';
   
-  const linkWidth = doc.widthOfString(link);
-  const linkHeight = doc.currentLineHeight();
+  // const linkWidth = doc.widthOfString(link);
+  // const linkHeight = doc.currentLineHeight();
   
-  doc
-    .underline(
-      doc.page.width / 2 - linkWidth / 2,
-      448,
-      linkWidth,
-      linkHeight,
-      { color: '#021c27' },
-    )
-    .link(
-      doc.page.width / 2 - linkWidth / 2,
-      448,
-      linkWidth,
-      linkHeight,
-      link,
-    );
+  // doc
+  //   .underline(
+  //     doc.page.width / 2 - linkWidth / 2,
+  //     448,
+  //     linkWidth,
+  //     linkHeight,
+  //     { color: '#021c27' },
+  //   )
+  //   .link(
+  //     doc.page.width / 2 - linkWidth / 2,
+  //     448,
+  //     linkWidth,
+  //     linkHeight,
+  //     link,
+  //   );
   
-  doc
-    .font('fonts/NotoSansJP-Light.otf')
-    .fontSize(10)
-    .fill('#021c27')
-    .text(
-      link,
-      doc.page.width / 2 - linkWidth / 2,
-      448,
-      linkWidth,
-      linkHeight
-    );
+  // doc
+  //   .font('fonts/NotoSansJP-Light.otf')
+  //   .fontSize(10)
+  //   .fill('#021c27')
+  //   .text(
+  //     link,
+  //     doc.page.width / 2 - linkWidth / 2,
+  //     448,
+  //     linkWidth,
+  //     linkHeight
+  //   );
   
   // Footer
-    const bottomHeight = doc.page.height - 100;
+    const bottomHeight = doc.page.height - 130;
     doc.image('assets/qr.png', doc.page.width / 2 - 30, bottomHeight, {
-      fit: [60, 60],
+      fit: [80, 80],
     });
   
     // doc.end();
