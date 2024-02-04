@@ -1,15 +1,19 @@
 const PDFDocument = require('pdfkit');
 // const winnerIng = require('./assets/winners.png')
 const userModel = require("../../model/userModel");
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 
 const generateCertificate=async(req, res) => {
   try {
     const user = req.user
+    if (!user || !user._id) {
+      throw new Error('User object or user ID is undefined');
+    }
+    console.log(user);
+
     const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
     const userData = await userModel.findOne({_id:userId},{user_name :1})
     const userName = userData.user_name
-    console.log(userName);
     const doc = new PDFDocument({
             layout: 'landscape',
             size: 'A4',
