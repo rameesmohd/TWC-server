@@ -13,11 +13,11 @@ const fetchChapters = async (req, res) => {
       if (user) {
         let data = cache.get('chapters');
       if (!data) {
-      }
         const chaptersFromDB = await chapterModel.find({});
         data = chaptersFromDB.map(chapter => chapter.toObject());
         cache.set('chapters', data);
-        res.status(200).json({ result: data ,user : { is_purchased:user.is_purchased,
+      }
+      res.status(200).json({ result: data ,user : { is_purchased:user.is_purchased,
           completed_chapters : user.completed_chapters}});
       } else {
         res.status(200).json({ result: [] });
