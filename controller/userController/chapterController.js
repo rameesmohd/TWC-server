@@ -8,8 +8,12 @@ const cache = new NodeCache({ stdTTL: 21600 }); // Cache with a 6-hour TTL
 const fetchChapters = async (req, res) => {
     try {
       const userId = mongoose.Types.ObjectId.createFromHexString(req.user._id);
-      const user = await userModel.findOne({ _id: userId, is_blocked: false, is_purchased: true });
+      const user = await userModel.findOne({ _id: userId, is_blocked: false, is_purchased: true});
       console.log(user);
+      if(!user?.is_loggedin){
+          return res.status(500).json({ error: 'Please login' });
+      }
+
       if (user) {
         let data = cache.get('chapters');
       if (!data) {
@@ -27,7 +31,6 @@ const fetchChapters = async (req, res) => {
       res.status(500).json({ error: 'Internal server error while fetching courses' });
     }
   };
-
   
 const handleChapterCompletes = async (req, res) => {
   try {

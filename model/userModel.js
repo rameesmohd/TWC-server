@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
       ref: "chapter",
     },
   ],
+  is_loggedin : {
+    type : Boolean,
+    default : false
+  }
 });
 
 const userModel = new mongoose.model("user", userSchema);

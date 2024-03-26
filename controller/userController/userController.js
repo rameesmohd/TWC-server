@@ -49,6 +49,10 @@ const login = async (req, res) => {
       is_blocked: false,
     });
 
+    if(userDetails.is_loggedin){
+      return res.status(400).json({ message: "User already logged in! Please logout and try again" });
+    }
+
     if (userDetails) {
       const isMatch = await bcrypt.compare(password, userDetails.password);
       if (isMatch) {
@@ -66,9 +70,11 @@ const login = async (req, res) => {
         response.user_name = userDetails.user_name;
         response.email = userDetails.email;
         response.mobile = userDetails.mobile;
+
+        await userModel.updateOne({_id:userDetails._id},{$set : {is_loggedin : true}})
         return res.status(200).json({ result : response,message:"Success"});
       } else {
-        return res.status(400).json({ message:"Password incurrect!!"});
+        return res.status(400).json({ message:"Password incorrect!!"});
       }
     } else {
       return res.status(400).json({ message:"User not found!!"});
@@ -197,10 +203,23 @@ const sendOtp =async(req,res)=>{
   }
 }
 
+const logoutUser =async(req,res)=>{
+  try {
+    console.log(req.body.id);
+    await userModel.updateOne({_id:req.body.id},{$set : {is_loggedin : false}})
+    res.status(200).json({message  : "Password changed successfully"})
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ message:"Server error!!"});
+  }
+}
+
+
 module.exports = {
   signup,
   login,
   sendResetMail,
   resetNewPassword,
-  sendOtp
+  sendOtp,
+  logoutUser
 };
