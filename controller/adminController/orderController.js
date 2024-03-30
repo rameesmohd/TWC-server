@@ -79,17 +79,17 @@ const handleOrder=async(req,res)=>{
                         html:`<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
                                 <div style="margin:50px auto;width:70%;padding:20px 0">
                                 <div style="border-bottom:1px solid #eee">
-                                    <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Welcome to Trade Walker Academy</a>
+                                    <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Welcome to Fourcapedu.</a>
                                 </div>
                                 <p style="font-size:1.1em">Hi,</p>
                                 <p>We have received your payment in full for the recent invoice. Thank you for the prompt settlement. We greatly appreciate your
                                  purchase and are here to assist you should you have any further requirements.</p>
-                                <a href='https://www.tradewalkeredu.com/my-course' style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;
+                                <a href='https://www.fourcapedu.com/my-course' style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;
                                 color: #fff;border-radius: 4px;">Go to course</a>
                                 <p style="font-size:0.9em;">Regards,<br />Trade Walker</p>
                                 <hr style="border:none;border-top:1px solid #eee" />
                                 <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-                                    <p>TWC Software Solutions</p>
+                                    <p>Fourcapedu.</p>
                                     <p>1600  First floor, Oryx Arcade, VMB Rd, Koonamthai Pathadipalam Residence Association Block C</p>
                                     <p>Pathadipalam, Edappally, Ernakulam, Kerala 682024</p>
                                 </div>
