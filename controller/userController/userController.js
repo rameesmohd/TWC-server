@@ -49,9 +49,9 @@ const login = async (req, res) => {
       is_blocked: false,
     });
 
-    if(userDetails.is_loggedin){
-      return res.status(400).json({ message: "User already logged in! Please logout and try again" });
-    }
+    // if(userDetails.is_loggedin){
+    //   return res.status(400).json({ message: "User already logged in! Please logout and try again" });
+    // }
 
     if (userDetails) {
       const isMatch = await bcrypt.compare(password, userDetails.password);
