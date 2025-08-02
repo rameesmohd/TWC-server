@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const userModel = require("../../model/userModel");
 const nodeMailer = require('nodemailer')
 
+
 const signup = async (req, res) => {
   try {
     const { email, password, mobile, name } = req.body;
@@ -39,40 +40,50 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password) {
       return res
         .status(400)
         .json({ msg: "Please provide both email and password" });
     }
-    const userDetails = await userModel.findOne({
+
+    const user = await userModel.findOne({
       email: email,
       is_blocked: false,
     });
 
-    // if(userDetails.is_loggedin){
-    //   return res.status(400).json({ message: "User already logged in! Please logout and try again" });
-    // }
-
-    if (userDetails) {
-      const isMatch = await bcrypt.compare(password, userDetails.password);
+    if (user) {
+      const token = generateAuthToken(user._id);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
-        console.log('matched');
         const response = {
           user_id: null,
           token: null,
           user_name: null,
           email: null,
           mobile : null,
-          is_purchased : userDetails.is_purchased
+          is_purchased : user.is_purchased
         };
-        response.token = generateAuthToken(userDetails);
-        response.user_id = userDetails._id;
-        response.user_name = userDetails.user_name;
-        response.email = userDetails.email;
-        response.mobile = userDetails.mobile;
+        response.token = token
+        response.user_id = user._id;
+        response.user_name = user.user_name;
+        response.email = user.email;
+        response.mobile = user.mobile;
 
-        await userModel.updateOne({_id:userDetails._id},{$set : {is_loggedin : true}})
-        return res.status(200).json({ result : response,message:"Success"});
+        user.curr_token = token
+        await user.save()
+
+        return res
+        .cookie("userToken", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+          ...(process.env.NODE_ENV === "production" && { domain: ".fourcapedu.com" }),
+          maxAge: 7 * 24 * 60 * 60 * 1000, 
+        })
+        .status(200)
+        .json({ result : response,message:"Success"});
+        
       } else {
         return res.status(400).json({ message:"Password incorrect!!"});
       }
@@ -135,7 +146,6 @@ const sendResetMail=async(req,res)=>{
         return res.status(500).json({ message:"Server error!!"});
       }
 }
-
 
 const resetNewPassword =async(req,res)=>{
   try {
@@ -205,15 +215,17 @@ const sendOtp =async(req,res)=>{
 
 const logoutUser =async(req,res)=>{
   try {
-    console.log(req.body.id);
-    await userModel.updateOne({_id:req.body.id},{$set : {is_loggedin : false}})
-    res.status(200).json({message  : "Password changed successfully"})
+    const userId = req.user._id
+    const user = await userModel.findOne({_id: userId})
+    user.curr_token = null
+    await user.save()
+
+    return res.status(200).json({message  : "Logged out successfully"})
   } catch (error) {
     console.error("Error:", error.message);
     return res.status(500).json({ message:"Server error!!"});
   }
 }
-
 
 module.exports = {
   signup,

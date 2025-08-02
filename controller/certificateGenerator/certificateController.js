@@ -11,7 +11,7 @@ const generateCertificate=async(req, res) => {
     }
     console.log(user);
 
-    const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
+    const userId = user._id
     const userData = await userModel.findOne({_id:userId},{user_name :1})
     const userName = userData.user_name
     const doc = new PDFDocument({

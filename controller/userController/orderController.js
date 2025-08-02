@@ -22,7 +22,6 @@ const generateTransactionID=()=>{
 
 const localBankOrder=async(req,res)=>{
     try {
-        console.log('in controller');
         const localBankOrderValidation = [
             body('amount').isNumeric().withMessage('Amount must be a number'),
         ];
@@ -33,10 +32,10 @@ const localBankOrder=async(req,res)=>{
         }
 
         const user = req.user
-        const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
+        const userId = user._id
         const image = req.files.screenshot[0]
         let imageUrl = null;
-        console.log(image);
+   
         await cloudinary.uploader.upload(image.path)
             .then((data) => {
                 imageUrl = data.secure_url;
@@ -181,7 +180,7 @@ const phonePayStatus=async(req,res)=>{
 const fetchTrasactionData=async(req,res)=>{
     try {
         const user = req.user
-        const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
+        const userId = user._id
         const data= await orderModel.find({user_id : userId})
         res.status(200).json({result : data})
     } catch (error) {
@@ -201,17 +200,17 @@ const usdtOrder=async(req,res)=>{
             return res.status(400).json({ errors: errors.array() });
         }
         const user = req.user
-        const userId = mongoose.Types.ObjectId.createFromHexString(user._id);
+        const userId = user._id
         const image = req.files.screenshot[0]
         let imageUrl = null;
         await cloudinary.uploader.upload(image.path)
-            .then((data) => {
-                imageUrl = data.secure_url;
-            }).catch((err) => {
-                res.status(500).json({ error: 'Error uploading image to Cloudinary.' });
-            }).finally(()=>{
-                fs.unlinkSync(image.path)
-            })
+        .then((data) => {
+            imageUrl = data.secure_url;
+        }).catch((err) => {
+            res.status(500).json({ error: 'Error uploading image to Cloudinary.' });
+        }).finally(()=>{
+            fs.unlinkSync(image.path)
+        })
         
         if(imageUrl){
             const transId = generateTransactionID();

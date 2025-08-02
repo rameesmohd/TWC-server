@@ -1,5 +1,4 @@
 const chapterModel = require("../../model/chapterModel")
-const orderModel = require("../../model/orderModel");
 const userModel = require("../../model/userModel");
 const NodeCache = require('node-cache');
 const mongoose  = require("mongoose");
@@ -7,24 +6,25 @@ const cache = new NodeCache({ stdTTL: 21600 }); // Cache with a 6-hour TTL
 
 const fetchChapters = async (req, res) => {
     try {
-      const userId = mongoose.Types.ObjectId.createFromHexString(req.user._id);
-      const user = await userModel.findOne({ _id: userId, is_blocked: false, is_purchased: true});
-      console.log(user);
-      if(!user?.is_loggedin){
-          return res.status(500).json({ error: 'Please login' });
+      if (!mongoose.Types.ObjectId.isValid( req.user._id)) {
+        return res.status(400).json({ message: "Invalid user ID format." });
       }
-
+      const userId =req.user._id
+      const user = await userModel.findOne({ _id: userId, is_blocked: false, is_purchased: true});
       if (user) {
-        let data = cache.get('chapters');
-      if (!data) {
+      // let data = cache.get('chapters');
+      // if (!data) {
         const chaptersFromDB = await chapterModel.find({});
         data = chaptersFromDB.map(chapter => chapter.toObject());
-        cache.set('chapters', data);
-      }
-      res.status(200).json({ result: data ,user : { is_purchased:user.is_purchased,
-          completed_chapters : user.completed_chapters}});
+      //   cache.set('chapters', data);
+      // }
+        return res.status(200).json({ result: data ,
+        user : { 
+          is_purchased:user.is_purchased,
+          completed_chapters : user.completed_chapters
+        }});
       } else {
-        res.status(200).json({ result: [] });
+        return res.status(200).json({ result: [] });
       }
     } catch (error) {
       console.error('Error fetching chapters:', error);
@@ -35,7 +35,7 @@ const fetchChapters = async (req, res) => {
 const handleChapterCompletes = async (req, res) => {
   try {
     const chapterId= mongoose.Types.ObjectId.createFromHexString(req.body.chapterId);
-    const userId = mongoose.Types.ObjectId.createFromHexString(req.user._id);
+    const userId = req.user._id
     const updatedData = await userModel.findOneAndUpdate(
       { _id: userId, is_blocked: false },
       {

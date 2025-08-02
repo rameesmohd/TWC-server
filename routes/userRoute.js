@@ -22,9 +22,10 @@ router.route("/forget-password")
 router.post('/phonepay/payment',orderController.phonePayPayment)
 router.post('/phonepay/status',orderController.phonePayStatus)
 
-router.patch('/logout',userController.logoutUser)
 
 router.use(verifyToken)
+
+router.patch('/logout',userController.logoutUser)
 
 router.get('/generatecertificate',generateCertificater.generateCertificate)
 router.get('/transaction',orderController.fetchTrasactionData)

@@ -7,9 +7,37 @@ const adminRoute = require('./routes/adminRoute');
 const multer = require("multer");
 const createError = require('http-errors');
 const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const helmet = require('helmet');
 dotenv.config();
 
 connectdb();
+
+app.set('trust proxy', 1);
+
+app.use(helmet({
+  contentSecurityPolicy:false,
+  crossOriginEmbedderPolicy: true,
+  crossOriginOpenerPolicy: true,
+  crossOriginResourcePolicy: { policy: "same-origin" },
+  dnsPrefetchControl: { allow: false },
+  expectCt: { maxAge: 86400 },
+  frameguard: { action: 'deny' },
+  hidePoweredBy: true,
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  ieNoOpen: true,
+  noSniff: true,
+  originAgentCluster: true,
+  permittedCrossDomainPolicies: { policy: "none" },
+  referrerPolicy: { policy: "no-referrer" },
+  xssFilter: true
+}));
+
+app.set('trust proxy', 1);
+
+
+
 // app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
 app.use(cors({
   origin: [ "https://www.fourcapedu.com","http://localhost:5173","https://twc-client-pearl.vercel.app"],
@@ -20,7 +48,9 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: "10mb", extended: true })); 
+app.use(cookieParser());
+app.use(bodyParser.json()); 
 
 app.use("/api/admin",adminRoute)
 app.use("/api",userRoute);
