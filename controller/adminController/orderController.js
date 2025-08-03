@@ -2,50 +2,73 @@ const orderModel = require('../../model/orderModel');
 const userModel = require('../../model/userModel');
 const nodeMailer = require('nodemailer')
 
-const fetchOrder =async(req,res)=>{
-    try {
-        const {timeframe,filter,search,from : dateFrom,to : toDate} = req.query
-        const findQuery = {};
-        console.log(req.query);
-        if(filter === 'success' || filter === 'rejected' || filter === 'pending'){
-            findQuery.payment_status = filter 
-        }
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date();
-        tomorrow.setHours(23, 59, 59, 999);
-        if (dateFrom && toDate) {
-            findQuery.date = { $gte: dateFrom, $lte: toDate };
-        }
-        if (timeframe === 'daily') {
-            findQuery.date = { $gte: today, $lte: tomorrow };
-        } else if (timeframe === 'weekly') {
-            const lastWeek = new Date();
-            lastWeek.setDate(lastWeek.getDate() - 7);
-            findQuery.date = { $gte: lastWeek };
-        } else if (timeframe === 'monthly') {
-            const lastMonth = new Date();
-            lastMonth.setMonth(lastMonth.getMonth() - 1);
-            findQuery.date = { $gte: lastMonth };
-        }
-
-        if(search){
-            const searchQuery = {
-                $or: [
-                    { transaction_id: { $regex: new RegExp(search, 'i') } }, 
-                    { email : { $regex: new RegExp(search, 'i') } }, 
-                ]
-            }
-            Object.assign(findQuery, searchQuery);
-        }    
-        console.log(findQuery);
-        const orderData = await orderModel.find(findQuery).sort({date : -1})
-        res.status(200).json({result : orderData})
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({message : "Server side error!"})
+const fetchOrder = async (req, res) => {
+  try {
+    // console.log(req.query,'req.query');
+    
+    const query = {};
+    for (const key in req.query) {
+      const trimmedKey = key.trim();
+      query[trimmedKey] = req.query[key].trim?.() || req.query[key];
     }
-}
+
+    // console.log(query, 'Sanitized Query');
+
+    const timeframe = query.timeframe;
+    const filter = query.filter;
+    const search = query.search;
+    const dateFrom = query.from;
+    const toDate = query.to;
+
+    const findQuery = {};
+
+    // Apply payment_status filter
+    if (['success', 'rejected', 'pending'].includes(filter)) {
+      findQuery.payment_status = filter;
+    }
+
+    // Handle time-based filters
+    const now = new Date();
+    if (dateFrom && toDate) {
+      const fromDate = new Date(dateFrom);
+      const untilDate = new Date(toDate);
+      untilDate.setHours(23, 59, 59, 999); // Include the whole day
+      findQuery.date = { $gte: fromDate, $lte: untilDate };
+    } else if (timeframe === 'daily') {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+      findQuery.date = { $gte: start, $lte: end };
+    } else if (timeframe === 'weekly') {
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      findQuery.date = { $gte: lastWeek };
+    } else if (timeframe === 'monthly') {
+      const lastMonth = new Date();
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      findQuery.date = { $gte: lastMonth };
+    }
+
+    // Handle search query
+    if (search) {
+      findQuery.$or = [
+        { user_email: { $regex: new RegExp(search, 'i') } },
+        { transaction_id: { $regex: new RegExp(search, 'i') } },
+      ];
+    }
+
+    // console.log(findQuery, 'Final Query');
+
+    const orderData = await orderModel.find(findQuery).sort({ date: -1 });
+
+    return res.status(200).json({ result: orderData });
+  } catch (error) {
+    console.error('Fetch order error:', error);
+    return res.status(500).json({ message: "Server side error!" });
+  }
+};
+
 
 const handleOrder=async(req,res)=>{
     try {
