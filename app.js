@@ -36,8 +36,6 @@ app.use(helmet({
 
 app.set('trust proxy', 1);
 
-
-
 // app.use(cors({ credentials: true, origin: process.env.CLIENT_BASE_URL }));
 app.use(cors({
   origin: [ "https://www.fourcapedu.com","http://localhost:5173","https://twc-client-pearl.vercel.app"],
