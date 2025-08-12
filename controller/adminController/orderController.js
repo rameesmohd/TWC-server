@@ -1,18 +1,18 @@
+const { paymentSuccessMail } = require('../../assets/mails');
 const orderModel = require('../../model/orderModel');
 const userModel = require('../../model/userModel');
 const nodeMailer = require('nodemailer')
+const { Resend } =require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const fetchOrder = async (req, res) => {
   try {
-    // console.log(req.query,'req.query');
-    
+
     const query = {};
     for (const key in req.query) {
       const trimmedKey = key.trim();
       query[trimmedKey] = req.query[key].trim?.() || req.query[key];
     }
-
-    // console.log(query, 'Sanitized Query');
 
     const timeframe = query.timeframe;
     const filter = query.filter;
@@ -84,56 +84,21 @@ const handleOrder=async(req,res)=>{
             console.log(user);
             await userModel.updateOne({_id : updatedOrder.user_id},{$set : {is_purchased : true}})
                 try {
-                    const transporter = nodeMailer.createTransport({
-                        host:'smtp.gmail.com',
-                        port:465,
-                        secure:true,
-                        require:true,
-                        auth:{
-                            user:process.env.OFFICIALMAIL,
-                            pass :process.env.OFFICIALMAILPASS
-                        }
-                    })
-            
-                    const mailOptions = {
-                        from : process.env.OFFICIALMAIL,
-                        to:user.email,
-                        subject:'For Verification mail',
-                        html:`<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
-                                <div style="margin:50px auto;width:70%;padding:20px 0">
-                                <div style="border-bottom:1px solid #eee">
-                                    <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Welcome to Fourcapedu.</a>
-                                </div>
-                                <p style="font-size:1.1em">Hi,</p>
-                                <p>We have received your payment in full for the recent invoice. Thank you for the prompt settlement. We greatly appreciate your
-                                 purchase and are here to assist you should you have any further requirements.</p>
-                                <a href='https://www.fourcapedu.com/my-course' style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;
-                                color: #fff;border-radius: 4px;">Go to course</a>
-                                <p style="font-size:0.9em;">Regards,<br />Trade Walker</p>
-                                <hr style="border:none;border-top:1px solid #eee" />
-                                <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-                                    <p>Fourcapedu.</p>
-                                    <p>1600  First floor, Oryx Arcade, VMB Rd, Koonamthai Pathadipalam Residence Association Block C</p>
-                                    <p>Pathadipalam, Edappally, Ernakulam, Kerala 682024</p>
-                                </div>
-                                </div>
-                            </div>`
-                    }
-            
-                    transporter.sendMail(mailOptions, function(error,info){
-                        if(error){
-                            console.log(error);
-                            return false
-                        }else{
-                            console.log("Email has been sent :- ",info.response);
-                            return true
-                        }
-                    }) 
+                  const data = await resend.emails.send({
+                    from: 'Fourcapedu Support <noreply@fourcapedu.com>',
+                    to: user.email,
+                    subject: 'Payment Confirmation - Fourcapedu',
+                    html: paymentSuccessMail(user),
+                  });
+
+                  console.log("Payment confirmation email sent via Resend:", data);
+                  return res.status(200).json({result : updatedOrder, message: "Payment confirmation sent!" });
+
                 } catch (error) {
-                    console.log(error.message);
-                    res.status(500).json({})
+                  console.error("Error sending payment confirmation:", error);
+                  return res.status(500).json({ message: "Server error!!" });
                 }
-        }
+            }
         res.status(200).json({result : updatedOrder})
     } catch (error) {
         console.log(error);
